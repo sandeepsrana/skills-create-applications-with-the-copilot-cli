@@ -1,20 +1,26 @@
 /**
  * Node.js CLI Calculator
  *
- * Supported operations (basic arithmetic):
+ * Supported operations:
  *   - add       : Addition (+)
  *   - subtract  : Subtraction (−)
  *   - multiply  : Multiplication (×)
  *   - divide    : Division (÷)
+ *   - modulo    : Modulo (%)
+ *   - power     : Exponentiation (^)
+ *   - sqrt      : Square root (√)
  *
  * Usage:
- *   node calculator.js <operation> <num1> <num2>
+ *   node calculator.js <operation> <num1> [num2]
  *
  * Examples:
  *   node calculator.js add 2 3        => Result: 5
  *   node calculator.js subtract 10 4  => Result: 6
  *   node calculator.js multiply 3 7   => Result: 21
  *   node calculator.js divide 20 5    => Result: 4
+ *   node calculator.js modulo 5 2     => Result: 1
+ *   node calculator.js power 2 3      => Result: 8
+ *   node calculator.js sqrt 16        => Result: 4
  */
 
 // Addition: sum two numbers
@@ -40,8 +46,29 @@ function divide(a, b) {
   return a / b;
 }
 
+// Modulo: remainder of dividing first number by second (with zero-division handling)
+function modulo(a, b) {
+  if (b === 0) {
+    throw new Error("Modulo by zero is not allowed.");
+  }
+  return a % b;
+}
+
+// Exponentiation: raise base to the power of exponent
+function power(base, exponent) {
+  return Math.pow(base, exponent);
+}
+
+// Square root: compute the square root of a number (with negative number handling)
+function sqrt(a) {
+  if (a < 0) {
+    throw new Error("Square root of a negative number is not allowed.");
+  }
+  return Math.sqrt(a);
+}
+
 // Export functions for testing
-module.exports = { add, subtract, multiply, divide };
+module.exports = { add, subtract, multiply, divide, modulo, power, sqrt };
 
 // CLI execution (only when run directly)
 if (require.main === module) {
@@ -50,10 +77,10 @@ if (require.main === module) {
   const num1 = parseFloat(args[1]);
   const num2 = parseFloat(args[2]);
 
-  // Validate input
-  if (!operation || isNaN(num1) || isNaN(num2)) {
-    console.error("Usage: node calculator.js <operation> <num1> <num2>");
-    console.error("Operations: add, subtract, multiply, divide");
+  // Validate input (sqrt only needs one number)
+  if (!operation || isNaN(num1) || (operation !== "sqrt" && isNaN(num2))) {
+    console.error("Usage: node calculator.js <operation> <num1> [num2]");
+    console.error("Operations: add, subtract, multiply, divide, modulo, power, sqrt");
     process.exit(1);
   }
 
@@ -77,9 +104,28 @@ if (require.main === module) {
         process.exit(1);
       }
       break;
+    case "modulo":
+      try {
+        result = modulo(num1, num2);
+      } catch (e) {
+        console.error(`Error: ${e.message}`);
+        process.exit(1);
+      }
+      break;
+    case "power":
+      result = power(num1, num2);
+      break;
+    case "sqrt":
+      try {
+        result = sqrt(num1);
+      } catch (e) {
+        console.error(`Error: ${e.message}`);
+        process.exit(1);
+      }
+      break;
     default:
       console.error(`Error: Unknown operation '${operation}'.`);
-      console.error("Valid operations: add, subtract, multiply, divide");
+      console.error("Valid operations: add, subtract, multiply, divide, modulo, power, sqrt");
       process.exit(1);
   }
 
